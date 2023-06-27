@@ -10,6 +10,8 @@ const Register = () => {
     password_confirmation: "",
     terms: false,
   });
+  const [errors, setErrors] = useState({});
+  const [response, setResponse] = useState("");
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -23,11 +25,35 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+     // Проверка наличия заполненных полей
+     if (!user.first_name || !user.last_name || !user.email || !user.password || !user.password_confirmation || !user.terms) {
+      setErrors({
+        form: "Please fill in all fields", // Установка общей ошибки для формы
+      });
+      return; // Прекращение выполнения функции
+    }
+
     try {
       const response = await registerUser(user);
       console.log(response); // Обработка успешной регистрации
+      setResponse("Registration successful!");
+      setUser({
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
+        terms: false,
+      });
+      setErrors({});
+      setTimeout(() => {
+        setResponse(""); // Очистка сообщения об успешной регистрации
+      }, 3000);
     } catch (error) {
       console.error(error); // Обработка ошибки регистрации
+      setErrors({
+        form: error.message, // Установка общей ошибки для формы
+      });
     }
   };
 
@@ -99,6 +125,16 @@ const Register = () => {
             I accept the terms and conditions
           </label>
         </div>
+        {errors.form && (
+          <div className="alert alert-danger" role="alert">
+            {errors.form}
+          </div>
+        )}
+        {response && (
+          <div className="alert alert-success" role="alert">
+            {response}
+          </div>
+        )}
         <button type="submit" className="btn btn-primary">
           Register
         </button>
